@@ -1,0 +1,16 @@
+<form [formGroup]="form">
+    <div>
+      <label for="name">Name:</label>
+      <input id="name" formControlName="name">
+      <div *ngIf="formErrors.name" class="error">{{ formErrors.name }}</div>
+    </div>
+  
+    <div>
+      <label for="email">Email:</label>
+      <input id="email" formControlName="email">
+      <div *ngIf="formErrors.email" class="error">{{ formErrors.email }}</div>
+    </div>
+  
+    <button type="button" (click)="onButtonClick()">Check Validation</button>
+  </form>
+  
