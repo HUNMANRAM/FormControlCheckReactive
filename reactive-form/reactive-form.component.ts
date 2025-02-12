@@ -3,10 +3,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { VALIDATION_MESSAGES } from '../validation-messages.const';
 
-type ValidationMessagesType = typeof VALIDATION_MESSAGES;
-type ValidationKeys = keyof ValidationMessagesType;
-type ErrorKeys<T extends ValidationKeys> = keyof ValidationMessagesType[T];
-
 @Component({
   selector: 'app-reactive-form',
   standalone: true,
@@ -16,8 +12,8 @@ type ErrorKeys<T extends ValidationKeys> = keyof ValidationMessagesType[T];
 })
 export class ReactiveFormComponent {
   form!: FormGroup;
-  validationMessages: ValidationMessagesType = VALIDATION_MESSAGES;
-  formErrors: { [key in ValidationKeys]?: string } = {};
+  validationMessages = VALIDATION_MESSAGES;
+  formErrors: { [key: string]: string } = {};
 
   constructor(private fb: FormBuilder) {
     this.createForm();
@@ -47,11 +43,11 @@ export class ReactiveFormComponent {
   validateForm() {
     this.formErrors = {}; // Reset errors
 
-    for (const field of Object.keys(this.validationMessages) as ValidationKeys[]) {
+    for (const field in this.validationMessages) {
       const control = this.form.get(field);
       if (control && control.invalid && (control.touched || control.dirty)) {
         this.formErrors[field] = Object.keys(control.errors || {})
-          .map(errorKey => this.validationMessages[field][errorKey as ErrorKeys<typeof field>])
+          .map(errorKey => this.validationMessages[field][errorKey])
           .join(' ');
       }
     }

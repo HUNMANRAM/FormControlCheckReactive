@@ -1,25 +1,25 @@
 <form [formGroup]="form">
-    <div>
-      <label for="name">Name:</label>
-      <input id="name" formControlName="name">
-      <!-- <div *ngIf="formErrors.name && (form.get('name')?.touched || form.get('name')?.dirty)" class="error">
-        {{ formErrors.name }}
-      </div> -->
-      <div *ngIf="formErrors['name'] && (form.get('name')?.touched || form.get('name')?.dirty)"  class="error">
-        {{ formErrors['name'] }}
-      </div>
+  <div>
+    <label for="name">Name:</label>
+    <input id="name" formControlName="name">
+    <!-- <div *ngIf="formErrors.name && (form.get('name')?.touched || form.get('name')?.dirty)" class="error">
+      {{ formErrors.name }}
+    </div> -->
+    <div *ngIf="formErrors['name'] && (form.get('name')?.touched || form.get('name')?.dirty)"  class="error">
+      {{ formErrors['name'] }}
     </div>
-  
-    <div>
-      <label for="email">Email:</label>
-      <input id="email" formControlName="email">
-      <!-- <div *ngIf="formErrors.email && (form.get('email')?.touched || form.get('email')?.dirty)" class="error">
-        {{ formErrors.email }}
-      </div> -->
-      <div *ngIf="formErrors['email'] && (form.get('email')?.touched || form.get('email')?.dirty)"  class="error">
-        {{ formErrors['email'] }}
-      </div>
+  </div>
+
+  <div>
+    <label for="email">Email:</label>
+    <input id="email" formControlName="email">
+    <!-- <div *ngIf="formErrors.email && (form.get('email')?.touched || form.get('email')?.dirty)" class="error">
+      {{ formErrors.email }}
+    </div> -->
+    <div *ngIf="formErrors['email'] && (form.get('email')?.touched || form.get('email')?.dirty)"  class="error">
+      {{ formErrors['email'] }}
     </div>
-  
-    <button type="button" (click)="onButtonClick()">Check Validation</button>
-  </form>
+  </div>
+
+  <button type="button" (click)="onButtonClick()">Check Validation</button>
+</form>
