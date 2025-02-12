@@ -3,6 +3,10 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { VALIDATION_MESSAGES } from '../validation-messages.const';
 
+type ValidationMessagesType = typeof VALIDATION_MESSAGES;
+type ValidationKeys = keyof ValidationMessagesType;
+type ErrorKeys<T extends ValidationKeys> = keyof ValidationMessagesType[T];
+
 @Component({
   selector: 'app-reactive-form',
   standalone: true,
@@ -12,11 +16,8 @@ import { VALIDATION_MESSAGES } from '../validation-messages.const';
 })
 export class ReactiveFormComponent {
   form!: FormGroup;
-  validationMessages: { [key: string]: { [key: string]: string } } = VALIDATION_MESSAGES;
-  formErrors: { [key: string]: string } = {
-    name: '',
-    email: ''
-  };
+  validationMessages: ValidationMessagesType = VALIDATION_MESSAGES;
+  formErrors: { [key in ValidationKeys]?: string } = {};
 
   constructor(private fb: FormBuilder) {
     this.createForm();
@@ -27,11 +28,15 @@ export class ReactiveFormComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]]
     });
+
+    this.form.valueChanges.subscribe(() => this.validateForm()); // Automatically validate on changes
   }
 
   onButtonClick() {
     this.markFormGroupTouched(this.form); // Mark all controls as touched
+    this.form.updateValueAndValidity(); // Ensure validation runs properly
     this.validateForm(); // Validate the form
+
     if (this.form.valid) {
       console.log('Form is valid!', this.form.value);
     } else {
@@ -40,24 +45,18 @@ export class ReactiveFormComponent {
   }
 
   validateForm() {
-    for (const field in this.formErrors) {
-      if (this.formErrors.hasOwnProperty(field)) {
-        this.formErrors[field] = ''; // Clear previous error messages
-        const control = this.form.get(field);
+    this.formErrors = {}; // Reset errors
 
-        if (control && control.invalid && (control.touched || control.dirty)) {
-          const messages = this.validationMessages[field];
-          for (const key in control.errors) {
-            if (control.errors.hasOwnProperty(key)) {
-              this.formErrors[field] += messages[key] + ' ';
-            }
-          }
-        }
+    for (const field of Object.keys(this.validationMessages) as ValidationKeys[]) {
+      const control = this.form.get(field);
+      if (control && control.invalid && (control.touched || control.dirty)) {
+        this.formErrors[field] = Object.keys(control.errors || {})
+          .map(errorKey => this.validationMessages[field][errorKey as ErrorKeys<typeof field>])
+          .join(' ');
       }
     }
   }
 
-  // Helper method to mark all controls in a form group as touched
   markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
