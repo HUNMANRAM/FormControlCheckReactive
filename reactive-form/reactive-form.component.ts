@@ -13,7 +13,8 @@ import { VALIDATION_MESSAGES } from '../validation-messages.const';
 export class ReactiveFormComponent {
   form!: FormGroup;
   validationMessages = VALIDATION_MESSAGES;
-  formErrors: { [key: string]: string } = {};
+  formErrors: { name?: string; email?: string } = {}; // Now using specific keys only
+  showErrors = false; // Controls when errors appear
 
   constructor(private fb: FormBuilder) {
     this.createForm();
@@ -24,43 +25,29 @@ export class ReactiveFormComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]]
     });
-
-    this.form.valueChanges.subscribe(() => this.validateForm()); // Automatically validate on changes
   }
 
   onButtonClick() {
-    this.markFormGroupTouched(this.form); // Mark all controls as touched
-    this.form.updateValueAndValidity(); // Ensure validation runs properly
-    this.validateForm(); // Validate the form
+    this.showErrors = true; // Enable error display
+    this.validateForm(); // Run validation
 
     if (this.form.valid) {
-      console.log('Form is valid!', this.form.value);
+      console.log('✅ Form is valid!', this.form.value);
     } else {
-      console.log('Form is invalid!');
+      console.log('❌ Form is invalid!');
     }
   }
 
   validateForm() {
     this.formErrors = {}; // Reset errors
 
-    for (const field in this.validationMessages) {
+    for (const field of Object.keys(this.validationMessages)) {
       const control = this.form.get(field);
-      if (control && control.invalid && (control.touched || control.dirty)) {
-        this.formErrors[field] = Object.keys(control.errors || {})
-          .map(errorKey => this.validationMessages[field][errorKey])
+      if (control && control.invalid) {
+        this.formErrors[field as 'name' | 'email'] = Object.keys(control.errors || {})
+          .map(errorKey => this.validationMessages[field as 'name' | 'email'][errorKey])
           .join(' ');
       }
     }
-  }
-
-  markFormGroupTouched(formGroup: FormGroup) {
-    Object.values(formGroup.controls).forEach(control => {
-      control.markAsTouched();
-      control.markAsDirty();
-
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control); // Recursively handle nested form groups
-      }
-    });
   }
 }
